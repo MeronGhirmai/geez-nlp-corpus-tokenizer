@@ -13,6 +13,7 @@ import { AnnotationStudio } from './components/AnnotationStudio';
 import { AiMorphologyAssistant } from './components/AiMorphologyAssistant';
 import { OpenSourceHub } from './components/OpenSourceHub';
 import { OpenSourceExportModal } from './components/OpenSourceExportModal';
+import { ResearchPaperView } from './components/ResearchPaperView';
 import { GitBranch, BookOpen, Layers } from 'lucide-react';
 
 export default function App() {
@@ -37,6 +38,7 @@ export default function App() {
         {activeTab === 'annotate' && <AnnotationStudio />}
         {activeTab === 'ai' && <AiMorphologyAssistant />}
         {activeTab === 'download' && <OpenSourceHub />}
+        {activeTab === 'paper' && <ResearchPaperView />}
       </main>
 
       {/* Global Export & Download Modal */}
@@ -59,6 +61,13 @@ export default function App() {
 
           <div className="flex items-center gap-4 text-stone-600">
             <button
+              onClick={() => setActiveTab('paper')}
+              className="text-amber-900 font-semibold hover:underline transition-colors"
+            >
+              Academic Paper
+            </button>
+            <span aria-hidden="true" className="text-stone-300">·</span>
+            <button
               onClick={() => setActiveTab('download')}
               className="hover:text-stone-900 transition-colors"
             >
@@ -72,15 +81,8 @@ export default function App() {
               KWIC Concordance
             </button>
             <span aria-hidden="true" className="text-stone-300">·</span>
-            <button
-              onClick={() => setActiveTab('annotate')}
-              className="hover:text-stone-900 transition-colors"
-            >
-              Community Submissions
-            </button>
-            <span aria-hidden="true" className="text-stone-300">·</span>
             <a
-              href="https://github.com/meronghirmai/geez-nlp-corpus-tokenizer"
+              href="https://github.com/MeronGhirmai/geez-nlp-corpus-tokenizer"
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-1 hover:text-stone-900 transition-colors"

@@ -1,7 +1,7 @@
 import React from 'react';
-import { BookOpen, Cpu, Database, Sparkles, BarChart3, Edit3, Download, GitBranch } from 'lucide-react';
+import { BookOpen, Cpu, Database, Sparkles, BarChart3, Edit3, Download, GitBranch, FileText } from 'lucide-react';
 
-export type ActiveTab = 'tokenizer' | 'corpus' | 'fidel' | 'analytics' | 'annotate' | 'ai' | 'download';
+export type ActiveTab = 'tokenizer' | 'corpus' | 'fidel' | 'analytics' | 'annotate' | 'ai' | 'download' | 'paper';
 
 interface HeaderProps {
   activeTab: ActiveTab;
@@ -18,6 +18,7 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange, onOpenEx
     { id: 'annotate', label: 'Annotation Studio', icon: <Edit3 className="w-4 h-4" />, sublabel: 'Clean & Tag' },
     { id: 'ai', label: 'Gemini Philologist', icon: <Sparkles className="w-4 h-4" />, sublabel: 'Classical AI' },
     { id: 'download', label: 'Open Source Hub', icon: <Download className="w-4 h-4" />, sublabel: 'Data & Models' },
+    { id: 'paper', label: 'Research Paper', icon: <FileText className="w-4 h-4" />, sublabel: 'Academic Paper' },
   ];
 
   return (
