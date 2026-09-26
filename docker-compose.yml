@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    container_name: geez_db
+    environment:
+      POSTGRES_DB: geez_corpus
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  pipeline_app:
+    build: ./pipeline
+    container_name: geez_pipeline
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_NAME: geez_corpus
+      DB_USER: postgres
+      DB_PASS: postgres
+
+volumes:
+  postgres_data:
