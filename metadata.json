@@ -1,0 +1,7 @@
+{
+  "name": "Ge'ez NLP Corpus & Tokenizer Explorer",
+  "description": "Research workbench and custom tokenizer for classical Ge'ez (ግዕዝ) curated by Meron Ghirmai, featuring 25,000+ sentences (~350k tokens) across Eritrean and Ethiopian historical manuscripts and educational texts.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
