@@ -12,6 +12,55 @@ Curated and developed by **Meron Ghirmai** (`meronghirmai25@gmail.com`).
 
 ---
 
+## 🏗️ System Architecture
+
+The project pairs a high-performance interactive research workbench with an enterprise-grade automated data engineering pipeline for Ethiopic and Classical Ge'ez corpora.
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                           GE'EZ NLP SYSTEM ARCHITECTURE                         │
+└─────────────────────────────────────────────────────────────────────────────────┘
+         │
+         ├── 🔄 Automated Data Engineering Pipeline (pipeline/app.py)
+         │    ├── Web Scraper: Continuous extraction from living Ethiopic sources (BBC Amharic)
+         │    ├── Normalization Engine (GeezDataEngine):
+         │    │    ├── Regex Homophone Reducer: [ሐኀኃሃኃ]→ሀ, [ሠ]→ሰ, [ዐ]→አ, [ፀ]→ጸ
+         │    │    └── Wordspace Tokenizer: Delimitation by Ethiopic wordspace (፡) & punctuation
+         │    └── ETL Loader: Upserting records with rich JSONB metadata
+         │
+         ├── 🐘 PostgreSQL & Docker Infrastructure (docker-compose.yml)
+         │    ├── Service 'db': PostgreSQL 15 database storing 'corpus_v2' schema
+         │    │    (url, raw_content, normalized_content, tokens TEXT[], metadata JSONB)
+         │    ├── Service 'pipeline_app': Python 3.9-slim containerized ETL worker
+         │    └── Network & Config: Dedicated bridge network ('geez_network') via DATABASE_URL
+         │
+         └── 💻 Interactive Research Workbench & UI (src/)
+              ├── React 19 + Vite + TypeScript frontend
+              ├── Syllabic Fidel Abugida Inspector & Morphological Assistant
+              └── Express API backend with scholarly philological fallback & Gemini analysis
+```
+
+### Core Architecture Components
+
+1. **Automated Data Engineering Pipeline (`pipeline/app.py`)**:
+   - Automated crawler that gathers modern Ethiopic script data from sources such as BBC News Amharic.
+   - Structured ETL execution transforming raw web markup into clean linguistic corpora.
+
+2. **Normalization & Tokenization Engine (`GeezDataEngine`)**:
+   - Resolves historical phonological homophone mergers:
+     - `[ሐኀኃሃኃ]` $\rightarrow$ `ሀ` (Hoi series)
+     - `[ሠ]` $\rightarrow$ `ሰ` (Sawt series)
+     - `[ዐ]` $\rightarrow$ `አ` (Alef / Ayn series)
+     - `[ፀ]` $\rightarrow$ `ጸ` (Tsadi series)
+   - Canonical Ethiopic wordspace (`፡`, U+1361) and traditional punctuation-aware tokenization.
+
+3. **PostgreSQL & Docker Infrastructure (`docker-compose.yml`)**:
+   - Multi-container architecture orchestrating `db` (`postgres:15`) and `pipeline_app` (`pipeline/Dockerfile`).
+   - Production schema `corpus_v2` storing URL, raw text, normalized text, text arrays (`tokens`), and flexible `metadata` via PostgreSQL JSONB.
+   - Connected seamlessly over a private container network via `DATABASE_URL`.
+
+---
+
 ## 📜 Cultural & Historical Heritage
 
 Classical Ge'ez is the shared ancient root of the Horn of Africa. This project sources and unifies texts across both nations:
@@ -63,7 +112,38 @@ Standard BPE tokenizers fail on Afroasiatic Semitic languages due to fused procl
 
 ---
 
-## 🚀 Quickstart & Hugging Face Usage
+## 🚀 Quickstart
+
+### 1. Automated ETL Pipeline & Database (Docker Compose)
+
+Spin up PostgreSQL 15 and the automated Ge'ez data engineering pipeline with a single command:
+
+```bash
+# Build and start both PostgreSQL (db) and the data engineering pipeline (pipeline_app)
+docker-compose up --build
+```
+
+To run in detached background mode:
+```bash
+docker-compose up --build -d
+```
+
+To inspect database logs or container status:
+```bash
+docker-compose logs -f pipeline_app
+docker-compose ps
+```
+
+The pipeline will automatically:
+1. Wait for PostgreSQL to become healthy.
+2. Initialize the `corpus_v2` table schema (`url`, `raw_content`, `normalized_content`, `tokens TEXT[]`, `metadata JSONB`).
+3. Scrape and parse Ethiopic articles from BBC News Amharic.
+4. Apply the `GeezDataEngine` homophone normalization and wordspace tokenizer.
+5. Persist the normalized records into PostgreSQL with full JSONB metadata.
+
+---
+
+### 2. Hugging Face Dataset & Pretrained Tokenizer
 
 Install dependencies:
 ```bash

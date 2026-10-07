@@ -1,9 +1,8 @@
-version: '3.8'
-
 services:
   db:
     image: postgres:15
     container_name: geez_db
+    restart: unless-stopped
     environment:
       POSTGRES_DB: geez_corpus
       POSTGRES_USER: postgres
@@ -12,17 +11,34 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - geez_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d geez_corpus"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   pipeline_app:
     build: ./pipeline
     container_name: geez_pipeline
+    restart: unless-stopped
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/geez_corpus
       DB_HOST: db
+      DB_PORT: "5432"
       DB_NAME: geez_corpus
       DB_USER: postgres
-      DB_PASS: postgres
+      DB_PASSWORD: postgres
+    networks:
+      - geez_network
+
+networks:
+  geez_network:
+    driver: bridge
 
 volumes:
   postgres_data:
