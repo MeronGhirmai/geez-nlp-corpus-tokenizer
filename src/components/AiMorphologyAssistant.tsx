@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Sparkles, Send, Loader2, BookOpen, Layers, History, CheckCircle2, AlertCircle } from 'lucide-react';
 
+import { getScholarlyFallback } from '../utils/scholarlyFallback';
+
 interface AnalysisResponse {
   geez_normalized?: string;
   transliteration_ipa?: string;
@@ -9,6 +11,7 @@ interface AnalysisResponse {
   english_translation_fluent?: string;
   historical_manuscript_context?: string;
   syntactic_notes?: string;
+  sourceEngine?: string;
   tokens?: Array<{
     surface: string;
     root_triconsonantal: string;
@@ -56,15 +59,19 @@ export const AiMorphologyAssistant: React.FC = () => {
       });
 
       if (!res.ok) {
-        const errJson = await res.json().catch(() => ({}));
-        throw new Error(errJson.message || errJson.error || `Server responded with ${res.status}`);
+        // Fall back gracefully to client-side scholarly analysis on static hosting / 404
+        const fallback = getScholarlyFallback(inputText);
+        setAnalysis(fallback);
+        return;
       }
 
       const data: AnalysisResponse = await res.json();
       setAnalysis(data);
     } catch (err: unknown) {
-      console.error('Error during AI analysis:', err);
-      setErrorMsg(err instanceof Error ? err.message : 'Failed to analyze Ge\'ez text');
+      console.warn('Backend unavailable, using client-side classical philological engine:', err);
+      // Fallback gracefully on static sites like GitHub Pages
+      const fallback = getScholarlyFallback(inputText);
+      setAnalysis(fallback);
     } finally {
       setLoading(false);
     }
@@ -150,10 +157,17 @@ export const AiMorphologyAssistant: React.FC = () => {
         <div className="space-y-6">
           {/* Translation & Transliteration Card */}
           <div className="bg-white border border-stone-200 rounded-lg p-5 shadow-xs">
-            <h3 className="text-xs font-semibold text-stone-900 uppercase tracking-wide pb-2 border-b border-stone-200 flex items-center gap-2">
-              <BookOpen className="w-4 h-4 text-amber-800" />
-              <span>Translation &amp; Romanization Alignment</span>
-            </h3>
+            <div className="pb-2 border-b border-stone-200 flex flex-wrap items-center justify-between gap-2">
+              <h3 className="text-xs font-semibold text-stone-900 uppercase tracking-wide flex items-center gap-2">
+                <BookOpen className="w-4 h-4 text-amber-800" />
+                <span>Translation &amp; Romanization Alignment</span>
+              </h3>
+              {analysis.sourceEngine && (
+                <span className="text-[10px] font-mono font-medium px-2 py-0.5 rounded bg-amber-50 text-amber-900 border border-amber-200">
+                  {analysis.sourceEngine}
+                </span>
+              )}
+            </div>
 
             <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="space-y-3">
